@@ -5,8 +5,8 @@
 Name: OrbitalDump
 Author: Mehdi Rezaei Far
 Date Created: Nov 30, 2022
-Last Modified: Nov 30, 2022
-Version : 1.0
+Last Modified: Dec 1, 2022
+Version : 1.1
 
 A simple multi-threaded distributed SSH brute-forcing tool written in Python.
 """
@@ -105,6 +105,12 @@ class SshBruteForcer(threading.Thread):
             # authentication failure (wrong password)
             except paramiko.AuthenticationException:
                 pass
+                '''
+                  logger.info(
+                    f"(queue size: {self.jobs.qsize()}) Invalid credential: "
+                    f"{username}@{hostname}:{port}:{password}"
+                )
+                '''
 
             # connection timeout
             except (
@@ -114,11 +120,22 @@ class SshBruteForcer(threading.Thread):
                 paramiko.SSHException,
             ):
                 pass
-                #self.jobs.put((hostname, username, password, port, timeout))
-
+                '''
+                logger.debug(
+                    f"(queue size: {self.jobs.qsize()}) Connection error: "
+                    f"{username}@{hostname}:{port}:{password}"
+                )
+                self.jobs.put((hostname, username, password, port, timeout))
+                '''
             # other uncaught exceptions
             except Exception as error:
                 pass
+                '''
+                logger.error(
+                    f"(queue size: {self.jobs.qsize()}) Uncaught exception {error}: "
+                    f"{username}@{hostname}:{port}:{password}"
+                )
+                '''
 
             # login successful
             else:
@@ -126,7 +143,7 @@ class SshBruteForcer(threading.Thread):
                     f"(queue size: {self.jobs.qsize()}) Valid credential found: "
                     f"{username}@{hostname}:{port}:{password}"
                 )
-                open("hit.txt", "w").write(f"{username}@{hostname}:{port}:{password}")
+                open("hit.txt", "w").write(f"{username}@{hostname}:{port}:{password}\n")
                 self.valid_credentials.append(
                     (hostname, username, password, port, timeout)
                 )
