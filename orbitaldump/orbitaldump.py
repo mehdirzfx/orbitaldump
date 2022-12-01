@@ -249,8 +249,9 @@ def main() -> int:
             return 1
 
         # initialize variables
+        mx_size = 2024 #set max size for Memory leak
         thread_pool = []
-        jobs = queue.Queue()
+        jobs = queue.Queue(maxsize=mx_size)
         valid_credentials = []
 
         # get proxies from ProxyScrape
