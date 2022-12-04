@@ -5,8 +5,8 @@
 Name: OrbitalDump
 Author: Mehdi Rezaei Far
 Date Created: Nov 30, 2022
-Last Modified: Dec 1, 2022
-Version : 1.1
+Last Modified: Dec 4, 2022
+Version : 1.3
 
 A simple multi-threaded distributed SSH brute-forcing tool written in Python.
 """
@@ -89,7 +89,7 @@ class SshBruteForcer(threading.Thread):
                 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
                 logger.debug(
-                    f"Connect to : {username}@{hostname}:{port}:{password}"
+                    f"Connect to : {username}@{hostname}:{password}"
                     + (f" with proxy {self.proxy}" if self.proxies else "")
                 )
 
@@ -141,9 +141,9 @@ class SshBruteForcer(threading.Thread):
             else:
                 logger.success(
                     f"(queue size: {self.jobs.qsize()}) Valid credential found: "
-                    f"{username}@{hostname}:{port}:{password}"
+                    f"{username}@{hostname}:{password}"
                 )
-                open("hit.txt", "w").write(f"{username}@{hostname}:{port}:{password}\n")
+                open("hit.txt", "a").write(f"{username}@{hostname}:{password}\n")
                 self.valid_credentials.append(
                     (hostname, username, password, port, timeout)
                 )
@@ -320,6 +320,7 @@ def main() -> int:
         )
         for hostname, username, password, port, timeout in valid_credentials:
             print(f"{username}@{hostname}:{port}:{password}")
+            open("final_hit.txt", "w").write(f"{username}@{hostname}:{port}:{password}\n")
         return 0
 
     except Exception as error:
