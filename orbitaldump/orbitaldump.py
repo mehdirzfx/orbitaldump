@@ -143,7 +143,7 @@ class SshBruteForcer(threading.Thread):
                     f"(queue size: {self.jobs.qsize()}) Valid credential found: "
                     f"{username}@{hostname}:{password}"
                 )
-                open("hit.txt", "a").write(f"{username}@{hostname}:{password}\n")
+                open("Hit.txt", "a").write(f"{username}@{hostname}:{password}\n")
                 self.valid_credentials.append(
                     (hostname, username, password, port, timeout)
                 )
@@ -320,7 +320,7 @@ def main() -> int:
         )
         for hostname, username, password, port, timeout in valid_credentials:
             print(f"{username}@{hostname}:{port}:{password}")
-            open("final_hit.txt", "w").write(f"{username}@{hostname}:{port}:{password}\n")
+            open("FinalCredentials.txt", "a").write(f"{username}@{hostname}:{port}:{password}\n")
         return 0
 
     except Exception as error:
